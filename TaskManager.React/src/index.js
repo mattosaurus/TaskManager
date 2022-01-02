@@ -10,6 +10,11 @@ import { library } from '@fortawesome/fontawesome-svg-core'
 import * as serviceWorker from './serviceWorker';
 import 'bootstrap/dist/css/bootstrap.min.css';
 
+// MSAL imports
+import { MsalProvider } from "@azure/msal-react";
+import { PublicClientApplication, EventType  } from "@azure/msal-browser";
+import { msalConfig } from "../src/config/msalConfig";
+
 // Import all FontAwesome icons
 const iconList = Object
     .keys(Icons)
@@ -18,12 +23,30 @@ const iconList = Object
 
 library.add(...iconList)
 
+const baseUrl = document.getElementsByTagName('base')[0].getAttribute('href');
+
+export const msalInstance = new PublicClientApplication(msalConfig);
+
+const accounts = msalInstance.getAllAccounts();
+if (accounts.length > 0) {
+    msalInstance.setActiveAccount(accounts[0]);
+}
+
+msalInstance.addEventCallback((event) => {
+    if (event.eventType === EventType.LOGIN_SUCCESS && event.payload.account) {
+        const account = event.payload.account;
+        msalInstance.setActiveAccount(account);
+    }
+});
+
 ReactDOM.render(
   <React.StrictMode>
     <Provider store={store}>
-    <BrowserRouter>
-      <App />
-    </BrowserRouter>
+      <BrowserRouter basename={baseUrl}>
+        <MsalProvider instance={msalInstance}>
+            <App />
+          </MsalProvider>
+      </BrowserRouter>
     </Provider>
   </React.StrictMode>,
   document.getElementById('root')
