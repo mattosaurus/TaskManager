@@ -15,6 +15,10 @@ import { MsalProvider } from "@azure/msal-react";
 import { PublicClientApplication, EventType  } from "@azure/msal-browser";
 import { msalConfig } from "../src/config/msalConfig";
 
+// Darag and Drop imports
+import { HTML5Backend } from 'react-dnd-html5-backend'
+import { DndProvider } from 'react-dnd'
+
 // Import all FontAwesome icons
 const iconList = Object
     .keys(Icons)
@@ -44,8 +48,10 @@ ReactDOM.render(
     <Provider store={store}>
       <BrowserRouter basename={baseUrl}>
         <MsalProvider instance={msalInstance}>
+          <DndProvider backend={HTML5Backend}>
             <App />
-          </MsalProvider>
+          </DndProvider>
+        </MsalProvider>
       </BrowserRouter>
     </Provider>
   </React.StrictMode>,
